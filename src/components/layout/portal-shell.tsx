@@ -9,6 +9,7 @@ import { ROLE_META } from "@/data/constants";
 import type { AvatarSpec, Role } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useDemoStore } from "@/store/demo-store";
+import { useHydrated } from "@/store/hooks";
 import { Logo } from "@/components/brand/logo";
 import { Portrait } from "@/components/shared/portrait";
 import { Button } from "@/components/ui/button";
@@ -62,11 +63,13 @@ export function PortalShell({ portalLabel, sections, user, roles, homeHref, noti
   const setRole = useDemoStore((s) => s.setRole);
   const logout = useDemoStore((s) => s.logout);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const hydrated = useHydrated();
 
   // Visiting a portal URL directly switches the demo role to match it.
   useEffect(() => {
-    if (!roles.includes(role)) setRole(roles[0]);
-  }, [role, roles, setRole]);
+    // Wait for saved state so the switch applies on top of it.
+    if (hydrated && !roles.includes(role)) setRole(roles[0]);
+  }, [hydrated, role, roles, setRole]);
 
   const nav = (
     <nav className="flex flex-col gap-5" aria-label={`${portalLabel} navigation`}>

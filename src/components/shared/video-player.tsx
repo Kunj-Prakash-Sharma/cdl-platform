@@ -132,15 +132,15 @@ function PlayerInner({ course, lesson, contextLabel, originalQuality = "1080p", 
       />
       <div className="absolute inset-0 -z-10 bg-grid opacity-30" />
 
-      <button type="button" onClick={toggle} className="absolute inset-0 flex flex-col items-center justify-center gap-4 px-6 text-center" aria-label={playing ? "Pause" : "Play"}>
-        <div className="flex items-center gap-2 text-[11px] font-medium tracking-wider text-white/70 uppercase">
+      <button type="button" onClick={toggle} className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-4 pb-10 text-center sm:gap-4 sm:px-6 sm:pb-0" aria-label={playing ? "Pause" : "Play"}>
+        <div className="hidden items-center gap-2 text-[11px] font-medium tracking-wider text-white/70 uppercase sm:flex">
           <CourseIcon theme={course.thumbnail} className="size-4" />
           {course.title}
         </div>
-        <p className="max-w-xl font-heading text-xl leading-tight font-semibold text-balance sm:text-3xl">{lesson.title}</p>
-        {contextLabel && <p className="text-sm text-white/65">{contextLabel}</p>}
+        <p className="line-clamp-2 max-w-xl font-heading text-base leading-tight font-semibold text-balance sm:text-xl md:text-3xl">{lesson.title}</p>
+        {contextLabel && <p className="hidden text-sm text-white/65 sm:block">{contextLabel}</p>}
         {!playing && (
-          <span className="mt-2 flex size-16 items-center justify-center rounded-full bg-white/95 text-navy shadow-lg transition group-hover/player:scale-105">
+          <span className="mt-1 flex size-12 items-center justify-center rounded-full bg-white/95 text-navy shadow-lg transition group-hover/player:scale-105 sm:mt-2 sm:size-16">
             {ended ? <RotateCcw className="size-7" /> : <Play className="ml-1 size-7 fill-current" />}
           </span>
         )}
@@ -167,7 +167,7 @@ function PlayerInner({ course, lesson, contextLabel, originalQuality = "1080p", 
           </div>
         </div>
       )}
-      <div className="pointer-events-none absolute top-3 left-3 rounded-md bg-black/30 px-2 py-1 text-[10px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm">
+      <div className="pointer-events-none absolute top-3 left-3 hidden rounded-md sm:block bg-black/30 px-2 py-1 text-[10px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm">
         Sample recording · simulated playback
       </div>
 
@@ -204,14 +204,14 @@ function PlayerInner({ course, lesson, contextLabel, originalQuality = "1080p", 
             {playing ? <Pause className="size-5 fill-current" /> : <Play className="size-5 fill-current" />}
           </CtrlButton>
           {onNext && <CtrlButton label="Next lesson" onClick={onNext}><SkipForward className="size-4" /></CtrlButton>}
-          <CtrlButton label={muted ? "Unmute" : "Mute"} onClick={() => setMuted((m) => !m)}>
+          <CtrlButton label={muted ? "Unmute" : "Mute"} onClick={() => setMuted((m) => !m)} className="hidden sm:flex">
             {muted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
           </CtrlButton>
           <span className="ml-1 font-mono text-xs text-white/85 tabular-nums">
             {formatClock(current)} / {formatClock(duration)}
           </span>
           <div className="ml-auto flex items-center gap-1">
-            <CtrlButton label="Captions" onClick={() => setCaptions((c) => !c)} active={captions}>
+            <CtrlButton label="Captions" onClick={() => setCaptions((c) => !c)} active={captions} className="hidden sm:flex">
               <Captions className="size-4" />
             </CtrlButton>
             <DropdownMenu>
@@ -256,14 +256,14 @@ function PlayerInner({ course, lesson, contextLabel, originalQuality = "1080p", 
   );
 }
 
-function CtrlButton({ label, onClick, children, active }: { label: string; onClick: () => void; children: React.ReactNode; active?: boolean }) {
+function CtrlButton({ label, onClick, children, active, className }: { label: string; onClick: () => void; children: React.ReactNode; active?: boolean; className?: string }) {
   return (
     <button
       type="button"
       aria-label={label}
       title={label}
       onClick={onClick}
-      className={cn("flex size-8 items-center justify-center rounded-md text-white/90 transition hover:bg-white/15 hover:text-white", active && "bg-white/20 text-white")}
+      className={cn("flex size-8 items-center justify-center rounded-md text-white/90 transition hover:bg-white/15 hover:text-white", active && "bg-white/20 text-white", className)}
     >
       {children}
     </button>

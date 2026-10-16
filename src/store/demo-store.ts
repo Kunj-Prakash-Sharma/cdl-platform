@@ -175,6 +175,45 @@ interface DemoActions {
 
 export type DemoStore = DemoData & DemoActions;
 
+/**
+ * localStorage when available; otherwise (server render, private mode, blocked site data) an
+ * in-memory fallback so the persist API always exists and hydration always completes.
+ */
+const memory = new Map<string, string>();
+const memoryStorage = {
+  getItem: (k: string) => memory.get(k) ?? null,
+  setItem: (k: string, v: string) => void memory.set(k, v),
+  removeItem: (k: string) => void memory.delete(k),
+};
+function baseStorage() {
+  try {
+    if (typeof window === "undefined") return memoryStorage;
+    const probe = "__cdl_probe__";
+    window.localStorage.setItem(probe, "1");
+    window.localStorage.removeItem(probe);
+    return window.localStorage;
+  } catch {
+    return memoryStorage;
+  }
+}
+
+/**
+ * Writes are ignored until the saved state has been restored. Otherwise a component that changes
+ * state on mount (e.g. a portal switching the demo role) would overwrite the saved demo with seed
+ * data before it was read back.
+ */
+let hydrationDone = false;
+function safeStorage() {
+  const base = baseStorage();
+  return {
+    getItem: (k: string) => base.getItem(k),
+    setItem: (k: string, v: string) => {
+      if (hydrationDone) base.setItem(k, v);
+    },
+    removeItem: (k: string) => base.removeItem(k),
+  };
+}
+
 const initialData = (): DemoData => ({
   role: "visitor",
   isLoggedIn: false,
@@ -358,9 +397,12 @@ export const useDemoStore = create<DemoStore>()(
     {
       name: "cdl-demo-v1",
       version: 1,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(safeStorage),
       // Rehydrated manually in <DemoProvider> after mount to avoid SSR hydration mismatches.
       skipHydration: true,
+      onRehydrateStorage: () => () => {
+        hydrationDone = true;
+      },
     },
   ),
 );

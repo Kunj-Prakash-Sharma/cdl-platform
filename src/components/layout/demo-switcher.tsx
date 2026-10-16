@@ -34,6 +34,8 @@ export function DemoSwitcher() {
   const resetDemo = useDemoStore((s) => s.resetDemo);
 
   if (pathname === "/demo") return null;
+  // In portals the desktop sidebar owns the bottom-left corner (user menu), so sit just right of it.
+  const inPortal = /^\/(dashboard|college|campus|mentor|admin)(\/|$)/.test(pathname);
 
   const go = (r: Role) => {
     setRole(r);
@@ -42,7 +44,7 @@ export function DemoSwitcher() {
   };
 
   return (
-    <div className="no-print fixed bottom-4 left-4 z-50">
+    <div className={cn("no-print fixed bottom-4 left-4 z-50", inPortal && "lg:left-[272px]")}>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <button
